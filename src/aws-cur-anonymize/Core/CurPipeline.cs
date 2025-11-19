@@ -1,6 +1,6 @@
-using DuckDB.NET.Data;
 using System.Text;
 using System.Text.RegularExpressions;
+using DuckDB.NET.Data;
 
 namespace AwsCurAnonymize.Core;
 

@@ -32,7 +32,7 @@ public class RunSettings : CommandSettings
 
 public class RunCommand : AsyncCommand<RunSettings>
 {
-    public override async Task<int> ExecuteAsync(CommandContext context, RunSettings settings)
+    public override async Task<int> ExecuteAsync(CommandContext context, RunSettings settings, CancellationToken cancellationToken)
     {
         // Show banner
         ShowBanner();

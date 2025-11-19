@@ -1,7 +1,3 @@
-using AwsCurAnonymize.Core;
-using FluentAssertions;
-using DuckDB.NET.Data;
-
 namespace AwsCurAnonymize.Tests.Core;
 
 public class CurPipelineTests : IDisposable
@@ -113,17 +109,17 @@ public class CurPipelineTests : IDisposable
         var stats = await CurPipeline.WriteDetailAsync(testDataFile, _tempOutputDir, TestSalt, "csv", configPath, "filtered");
 
         // Assert - Verify columns were filtered
-        stats.OriginalColumnCount.Should().Be(13, "sample-legacy-csv.csv has 13 columns");
-        stats.OutputColumnCount.Should().BeLessThan(13, "some columns should be filtered out");
+        Assert.Equal(13, stats.OriginalColumnCount);
+        Assert.True(stats.OutputColumnCount < 13);
 
         // Read the output and verify excluded columns are not present
         var outputFile = Path.Combine(_tempOutputDir, "filtered.csv");
         var headerLine = File.ReadLines(outputFile).First();
 
-        headerLine.Should().NotContain("bill_payer_account_id", "bill_* pattern should exclude this column");
-        headerLine.Should().NotContain("line_item_blended_cost", "*_blended_cost pattern should exclude this column");
-        headerLine.Should().Contain("line_item_usage_account_id", "this column should remain");
-        headerLine.Should().Contain("line_item_unblended_cost", "only blended_cost should be excluded, not unblended_cost");
+        Assert.DoesNotContain("bill_payer_account_id", headerLine);
+        Assert.DoesNotContain("line_item_blended_cost", headerLine);
+        Assert.Contains("line_item_usage_account_id", headerLine);
+        Assert.Contains("line_item_unblended_cost", headerLine);
     }
 
     public void Dispose()

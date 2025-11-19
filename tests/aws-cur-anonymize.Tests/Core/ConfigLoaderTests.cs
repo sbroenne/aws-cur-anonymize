@@ -1,8 +1,5 @@
-using AwsCurAnonymize.Core;
-using FluentAssertions;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
-using Xunit;
 
 namespace AwsCurAnonymize.Tests.Core;
 
@@ -19,13 +16,13 @@ public class ConfigLoaderTests
         var config = await ConfigLoader.LoadConfigAsync(null);
 
         // Assert
-        config.Should().NotBeNull();
-        config.IncludePatterns.Should().BeNullOrEmpty();
-        config.ExcludePatterns.Should().BeNullOrEmpty();
-        config.Anonymization.Should().NotBeNull();
-        config.Anonymization!.AnonymizeAccountIds.Should().BeTrue();
-        config.Anonymization.AnonymizeArns.Should().BeTrue();
-        config.Anonymization.HashTags.Should().BeTrue();
+        Assert.NotNull(config);
+        Assert.True(config.IncludePatterns == null || config.IncludePatterns.Count == 0);
+        Assert.True(config.ExcludePatterns == null || config.ExcludePatterns.Count == 0);
+        Assert.NotNull(config.Anonymization);
+        Assert.True(config.Anonymization!.AnonymizeAccountIds);
+        Assert.True(config.Anonymization.AnonymizeArns);
+        Assert.True(config.Anonymization.HashTags);
     }
 
     [Fact]
@@ -49,14 +46,14 @@ public class ConfigLoaderTests
             var config = await ConfigLoader.LoadConfigAsync(tempFile);
 
             // Assert
-            config.Should().NotBeNull();
-            config.Comment.Should().Be("Test config");
-            config.IncludePatterns.Should().HaveCount(2);
-            config.IncludePatterns.Should().Contain("line_item_*");
-            config.IncludePatterns.Should().Contain("bill_*");
-            config.ExcludePatterns.Should().HaveCount(2);
-            config.ExcludePatterns.Should().Contain("identity_*");
-            config.ExcludePatterns.Should().Contain("*_internal");
+            Assert.NotNull(config);
+            Assert.Equal("Test config", config.Comment);
+            Assert.Equal(2, config.IncludePatterns.Count);
+            Assert.Contains("line_item_*", config.IncludePatterns);
+            Assert.Contains("bill_*", config.IncludePatterns);
+            Assert.Equal(2, config.ExcludePatterns.Count);
+            Assert.Contains("identity_*", config.ExcludePatterns);
+            Assert.Contains("*_internal", config.ExcludePatterns);
         }
         finally
         {
@@ -91,7 +88,7 @@ public class ConfigLoaderTests
         var shouldInclude = ConfigLoader.ShouldIncludeColumn(columnName, config);
 
         // Assert
-        shouldInclude.Should().Be(expectedInclude);
+        Assert.Equal(expectedInclude, shouldInclude);
     }
 
     [Theory]
@@ -111,7 +108,7 @@ public class ConfigLoaderTests
         var shouldInclude = ConfigLoader.ShouldIncludeColumn(columnName, config);
 
         // Assert
-        shouldInclude.Should().Be(expectedInclude);
+        Assert.Equal(expectedInclude, shouldInclude);
     }
 
     [Theory]
@@ -132,7 +129,7 @@ public class ConfigLoaderTests
         var shouldInclude = ConfigLoader.ShouldIncludeColumn(columnName, config);
 
         // Assert
-        shouldInclude.Should().Be(expectedInclude);
+        Assert.Equal(expectedInclude, shouldInclude);
     }
 
     [Fact]
@@ -142,9 +139,9 @@ public class ConfigLoaderTests
         var config = new CurConfig();
 
         // Act & Assert
-        ConfigLoader.ShouldIncludeColumn("any_column_name", config).Should().BeTrue();
-        ConfigLoader.ShouldIncludeColumn("identity_something", config).Should().BeTrue();
-        ConfigLoader.ShouldIncludeColumn("line_item_cost", config).Should().BeTrue();
+        Assert.True(ConfigLoader.ShouldIncludeColumn("any_column_name", config));
+        Assert.True(ConfigLoader.ShouldIncludeColumn("identity_something", config));
+        Assert.True(ConfigLoader.ShouldIncludeColumn("line_item_cost", config));
     }
 
     [Fact]
@@ -166,10 +163,10 @@ public class ConfigLoaderTests
         var config = ConfigLoader.GenerateConfigFromColumns(columns);
 
         // Assert
-        config.Should().NotBeNull();
-        config.Comment.Should().Contain("Auto-generated configuration");
-        config.ExcludePatterns.Should().NotBeNull();
-        config.ExcludePatterns.Should().Contain("identity_*");
+        Assert.NotNull(config);
+        Assert.Contains("Auto-generated configuration", config.Comment);
+        Assert.NotNull(config.ExcludePatterns);
+        Assert.Contains("identity_*", config.ExcludePatterns);
     }
 
     [Fact]
@@ -190,11 +187,11 @@ public class ConfigLoaderTests
         var config = await ConfigLoader.LoadConfigAsync(configPath);
 
         // Assert
-        config.Should().NotBeNull();
-        config.ExcludePatterns.Should().NotBeNull();
-        config.Anonymization.Should().NotBeNull();
-        config.Anonymization.AnonymizeAccountIds.Should().BeTrue();
-        config.Anonymization.AnonymizeArns.Should().BeTrue();
+        Assert.NotNull(config);
+        Assert.NotNull(config.ExcludePatterns);
+        Assert.NotNull(config.Anonymization);
+        Assert.True(config.Anonymization.AnonymizeAccountIds);
+        Assert.True(config.Anonymization.AnonymizeArns);
     }
 
     private static string FindProjectRoot()

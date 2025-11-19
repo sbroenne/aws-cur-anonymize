@@ -5,9 +5,6 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-global using Xunit;
-global using Moq;
-global using FluentAssertions;
-global using AwsCurAnonymize;
 global using AwsCurAnonymize.Cli;
 global using AwsCurAnonymize.Core;
+global using Xunit;

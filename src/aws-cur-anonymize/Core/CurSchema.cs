@@ -7,10 +7,10 @@ public enum CurSchemaVersion
 {
     /// <summary>Legacy CUR CSV format with forward-slash column names (e.g., "lineItem/UsageStartDate")</summary>
     LegacyCsv,
-    
+
     /// <summary>Legacy CUR Parquet format with underscore column names (e.g., lineitem_usagestartdate)</summary>
     LegacyParquet,
-    
+
     /// <summary>CUR 2.0 format with snake_case column names (e.g., line_item_usage_start_date)</summary>
     Cur20
 }
@@ -28,7 +28,7 @@ public class CurSchemaMapping
     public string UnblendedCost { get; }
     public string UsageAmount { get; }
 
-    private CurSchemaMapping(CurSchemaVersion version, string usageStartDate, string payerAccountId, 
+    private CurSchemaMapping(CurSchemaVersion version, string usageStartDate, string payerAccountId,
         string productName, string usageType, string unblendedCost, string usageAmount)
     {
         Version = version;
@@ -100,7 +100,7 @@ public class CurSchemaMapping
         // Read just the header line
         using var reader = new StreamReader(csvPath);
         var headerLine = await reader.ReadLineAsync();
-        
+
         if (string.IsNullOrEmpty(headerLine))
             throw new InvalidDataException($"CSV file is empty or has no header: {csvPath}");
 
@@ -113,7 +113,7 @@ public class CurSchemaMapping
     public static async Task<CurSchemaVersion> DetectFromGlobAsync(string globPattern)
     {
         // For parquet, assume LegacyParquet format
-        if (globPattern.EndsWith(".parquet", StringComparison.OrdinalIgnoreCase) || 
+        if (globPattern.EndsWith(".parquet", StringComparison.OrdinalIgnoreCase) ||
             globPattern.Contains(".parquet", StringComparison.OrdinalIgnoreCase))
         {
             return CurSchemaVersion.LegacyParquet;
@@ -122,7 +122,7 @@ public class CurSchemaMapping
         // For CSV, find first matching file and sniff it
         var directory = Path.GetDirectoryName(globPattern);
         var pattern = Path.GetFileName(globPattern);
-        
+
         if (string.IsNullOrEmpty(directory))
             directory = Directory.GetCurrentDirectory();
 

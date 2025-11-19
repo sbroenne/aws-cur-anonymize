@@ -1,7 +1,3 @@
-using AwsCurAnonymize.Core;
-using FluentAssertions;
-using Xunit;
-
 namespace AwsCurAnonymize.Tests.Core;
 
 public class ArnAnonymizationTests
@@ -28,8 +24,8 @@ public class ArnAnonymizationTests
         );
 
         // Salt is used in actual anonymization, validated here for test data
-        salt.Should().NotBeNullOrEmpty();
-        originalArn.Should().StartWith("arn:");
+        Assert.False(string.IsNullOrEmpty(salt));
+        Assert.StartsWith("arn:", originalArn);
     }
 
     [Theory]
@@ -45,7 +41,7 @@ public class ArnAnonymizationTests
             arnPattern
         );
 
-        match.Should().BeFalse();
+        Assert.False(match);
     }
 
     [Theory]
@@ -57,6 +53,6 @@ public class ArnAnonymizationTests
         var arnPattern = @"^arn:([^:]+):([^:]*):([^:]*):(\d{12}):(.+)$";
         var match = System.Text.RegularExpressions.Regex.IsMatch(arn, arnPattern);
 
-        match.Should().Be(shouldMatch);
+        Assert.Equal(shouldMatch, match);
     }
 }
