@@ -9,23 +9,23 @@ jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
-    
+
     permissions:
       contents: write
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v5
-      
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v5
       with:
         dotnet-version: '10.0.x'
-    
+
     - name: Extract version from tag
       id: get_version
       run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-      
+
     - name: Build and publish for multiple platforms
       run: |
         # Windows x64
@@ -37,7 +37,17 @@ jobs:
           -p:PublishTrimmed=true \
           -p:Version=${{ steps.get_version.outputs.VERSION }} \
           -o ./publish/win-x64
-        
+
+        # Windows ARM64
+        dotnet publish src/aws-cur-anonymize/aws-cur-anonymize.csproj \
+          -c Release \
+          -r win-arm64 \
+          --self-contained true \
+          -p:PublishSingleFile=true \
+          -p:PublishTrimmed=true \
+          -p:Version=${{ steps.get_version.outputs.VERSION }} \
+          -o ./publish/win-arm64
+
         # Linux x64
         dotnet publish src/aws-cur-anonymize/aws-cur-anonymize.csproj \
           -c Release \
@@ -47,17 +57,8 @@ jobs:
           -p:PublishTrimmed=true \
           -p:Version=${{ steps.get_version.outputs.VERSION }} \
           -o ./publish/linux-x64
-        
-        # macOS x64
-        dotnet publish src/aws-cur-anonymize/aws-cur-anonymize.csproj \
-          -c Release \
-          -r osx-x64 \
-          --self-contained true \
-          -p:PublishSingleFile=true \
-          -p:PublishTrimmed=true \
-          -p:Version=${{ steps.get_version.outputs.VERSION }} \
-          -o ./publish/osx-x64
-        
+
+
         # macOS ARM64
         dotnet publish src/aws-cur-anonymize/aws-cur-anonymize.csproj \
           -c Release \
@@ -67,28 +68,32 @@ jobs:
           -p:PublishTrimmed=true \
           -p:Version=${{ steps.get_version.outputs.VERSION }} \
           -o ./publish/osx-arm64
-    
+
     - name: Create release archives
       run: |
         cd publish
-        
-        # Windows
+
+        # Windows x64
         zip -r ../aws-cur-anonymize-${{ steps.get_version.outputs.VERSION }}-win-x64.zip win-x64/
-        
+
+        # Windows ARM64
+        zip -r ../aws-cur-anonymize-${{ steps.get_version.outputs.VERSION }}-win-arm64.zip win-arm64/
+
         # Linux
         tar -czf ../aws-cur-anonymize-${{ steps.get_version.outputs.VERSION }}-linux-x64.tar.gz -C linux-x64 .
-        
+
         # macOS x64
         tar -czf ../aws-cur-anonymize-${{ steps.get_version.outputs.VERSION }}-osx-x64.tar.gz -C osx-x64 .
-        
+
         # macOS ARM64
         tar -czf ../aws-cur-anonymize-${{ steps.get_version.outputs.VERSION }}-osx-arm64.tar.gz -C osx-arm64 .
-    
+
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
         files: |
           aws-cur-anonymize-${{ steps.get_version.outputs.VERSION }}-win-x64.zip
+          aws-cur-anonymize-${{ steps.get_version.outputs.VERSION }}-win-arm64.zip
           aws-cur-anonymize-${{ steps.get_version.outputs.VERSION }}-linux-x64.tar.gz
           aws-cur-anonymize-${{ steps.get_version.outputs.VERSION }}-osx-x64.tar.gz
           aws-cur-anonymize-${{ steps.get_version.outputs.VERSION }}-osx-arm64.tar.gz
