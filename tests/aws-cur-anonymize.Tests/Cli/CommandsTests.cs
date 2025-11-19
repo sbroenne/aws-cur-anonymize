@@ -1,4 +1,3 @@
-using AwsCurAnonymize.Cli;
 using Spectre.Console.Cli;
 
 namespace AwsCurAnonymize.Tests.Cli;

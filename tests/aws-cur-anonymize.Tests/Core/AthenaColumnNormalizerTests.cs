@@ -1,7 +1,3 @@
-using Xunit;
-using FluentAssertions;
-using AwsCurAnonymize.Core;
-
 namespace AwsCurAnonymize.Tests.Core;
 
 /// <summary>
@@ -22,7 +18,7 @@ public class AthenaColumnNormalizerTests
         var result = AthenaColumnNormalizer.Normalize(input);
 
         // Assert
-        result.Should().Be(expected);
+        Assert.Equal(expected, result);
     }
 
     [Theory]
@@ -35,7 +31,7 @@ public class AthenaColumnNormalizerTests
         var result = AthenaColumnNormalizer.Normalize(input);
 
         // Assert
-        result.Should().Be(expected);
+        Assert.Equal(expected, result);
     }
 
     [Theory]
@@ -48,7 +44,7 @@ public class AthenaColumnNormalizerTests
         var result = AthenaColumnNormalizer.Normalize(input);
 
         // Assert
-        result.Should().Be(expected);
+        Assert.Equal(expected, result);
     }
 
     [Theory]
@@ -61,7 +57,7 @@ public class AthenaColumnNormalizerTests
         var result = AthenaColumnNormalizer.Normalize(input);
 
         // Assert
-        result.Should().Be(expected);
+        Assert.Equal(expected, result);
     }
 
     [Theory]
@@ -74,7 +70,7 @@ public class AthenaColumnNormalizerTests
         var result = AthenaColumnNormalizer.Normalize(input);
 
         // Assert
-        result.Should().Be(expected);
+        Assert.Equal(expected, result);
     }
 
     [Theory]
@@ -86,7 +82,7 @@ public class AthenaColumnNormalizerTests
         var result = AthenaColumnNormalizer.Normalize(input);
 
         // Assert
-        result.Should().Be(input);
+        Assert.Equal(input, result);
     }
 
     [Fact]
@@ -96,7 +92,7 @@ public class AthenaColumnNormalizerTests
         var result = AthenaColumnNormalizer.Normalize(null!);
 
         // Assert
-        result.Should().BeNull();
+        Assert.Null(result);
     }
 
     [Fact]
@@ -109,8 +105,8 @@ public class AthenaColumnNormalizerTests
         var result = AthenaColumnNormalizer.Normalize(input);
 
         // Assert
-        result.Should().NotStartWith("_");
-        result.Should().Be("column_name");
+        Assert.False(result.StartsWith("_"));
+        Assert.Equal("column_name", result);
     }
 
     [Fact]
@@ -123,8 +119,8 @@ public class AthenaColumnNormalizerTests
         var result = AthenaColumnNormalizer.Normalize(input);
 
         // Assert
-        result.Should().NotEndWith("_");
-        result.Should().Be("column_name");
+        Assert.False(result.EndsWith("_"));
+        Assert.Equal("column_name", result);
     }
 
     [Fact]
@@ -137,8 +133,8 @@ public class AthenaColumnNormalizerTests
         var result = AthenaColumnNormalizer.Normalize(input);
 
         // Assert
-        result.Should().NotContain("__");
-        result.Should().Be("column_name");
+        Assert.DoesNotContain("__", result);
+        Assert.Equal("column_name", result);
     }
 
     [Fact]
@@ -151,8 +147,8 @@ public class AthenaColumnNormalizerTests
         var result = AthenaColumnNormalizer.Normalize(input);
 
         // Assert
-        result.Should().Contain("32");
-        result.Should().Be("product_max32_iops_volume");
+        Assert.Contains("32", result);
+        Assert.Equal("product_max32_iops_volume", result);
     }
 
     [Fact]
@@ -165,9 +161,9 @@ public class AthenaColumnNormalizerTests
         var result = AthenaColumnNormalizer.CreateColumnAlias(input);
 
         // Assert
-        result.Should().StartWith("\"lineItem/UsageStartDate\"");
-        result.Should().Contain(" AS ");
-        result.Should().EndWith("line_item_usage_start_date");
+        Assert.StartsWith("\"lineItem/UsageStartDate\"", result);
+        Assert.Contains(" AS ", result);
+        Assert.EndsWith("line_item_usage_start_date", result);
     }
 
     [Fact]
@@ -180,9 +176,9 @@ public class AthenaColumnNormalizerTests
         var result = AthenaColumnNormalizer.CreateColumnAlias(input);
 
         // Assert
-        result.Should().StartWith("\"column name\"");
-        result.Should().Contain(" AS ");
-        result.Should().EndWith("column_name");
+        Assert.StartsWith("\"column name\"", result);
+        Assert.Contains(" AS ", result);
+        Assert.EndsWith("column_name", result);
     }
 
     [Fact]
@@ -195,9 +191,9 @@ public class AthenaColumnNormalizerTests
         var result = AthenaColumnNormalizer.CreateColumnAlias(input);
 
         // Assert
-        result.Should().StartWith("\"column-name\"");
-        result.Should().Contain(" AS ");
-        result.Should().EndWith("column_name");
+        Assert.StartsWith("\"column-name\"", result);
+        Assert.Contains(" AS ", result);
+        Assert.EndsWith("column_name", result);
     }
 
     [Fact]
@@ -210,19 +206,19 @@ public class AthenaColumnNormalizerTests
         var result = AthenaColumnNormalizer.CreateColumnAlias(input);
 
         // Assert
-        result.Should().NotContain("\"");
-        result.Should().Be("simplecolumn AS simplecolumn");
+        Assert.DoesNotContain("\"", result);
+        Assert.Equal("simplecolumn AS simplecolumn", result);
     }
 
     [Fact]
     public void CommonColumns_ContainsAllCriticalMappings()
     {
         // Assert
-        AthenaColumnNormalizer.CommonColumns.Mappings.Should().ContainKey("bill/PayerAccountId");
-        AthenaColumnNormalizer.CommonColumns.Mappings.Should().ContainKey("lineItem/UsageStartDate");
-        AthenaColumnNormalizer.CommonColumns.Mappings.Should().ContainKey("lineItem/UnblendedCost");
-        AthenaColumnNormalizer.CommonColumns.Mappings.Should().ContainKey("lineItem/BlendedCost");
-        AthenaColumnNormalizer.CommonColumns.Mappings.Should().ContainKey("product/ProductName");
+        Assert.True(AthenaColumnNormalizer.CommonColumns.Mappings.ContainsKey("bill/PayerAccountId"));
+        Assert.True(AthenaColumnNormalizer.CommonColumns.Mappings.ContainsKey("lineItem/UsageStartDate"));
+        Assert.True(AthenaColumnNormalizer.CommonColumns.Mappings.ContainsKey("lineItem/UnblendedCost"));
+        Assert.True(AthenaColumnNormalizer.CommonColumns.Mappings.ContainsKey("lineItem/BlendedCost"));
+        Assert.True(AthenaColumnNormalizer.CommonColumns.Mappings.ContainsKey("product/ProductName"));
     }
 
     [Fact]
@@ -232,8 +228,7 @@ public class AthenaColumnNormalizerTests
         foreach (var mapping in AthenaColumnNormalizer.CommonColumns.Mappings)
         {
             var normalized = AthenaColumnNormalizer.Normalize(mapping.Key);
-            normalized.Should().Be(mapping.Value,
-                $"Mapping for '{mapping.Key}' should normalize to '{mapping.Value}'");
+            Assert.Equal(mapping.Value, normalized);
         }
     }
 
@@ -246,12 +241,12 @@ public class AthenaColumnNormalizerTests
     public void CommonColumns_ContainsMappingAndNormalizesCorrectly(string key, string expectedValue)
     {
         // Assert
-        AthenaColumnNormalizer.CommonColumns.Mappings.Should().ContainKey(key);
-        AthenaColumnNormalizer.CommonColumns.Mappings[key].Should().Be(expectedValue);
+        Assert.True(AthenaColumnNormalizer.CommonColumns.Mappings.ContainsKey(key));
+        Assert.Equal(expectedValue, AthenaColumnNormalizer.CommonColumns.Mappings[key]);
 
         // Also verify normalization produces same result
         var normalized = AthenaColumnNormalizer.Normalize(key);
-        normalized.Should().Be(expectedValue);
+        Assert.Equal(expectedValue, normalized);
     }
 
     [Fact]
@@ -264,8 +259,7 @@ public class AthenaColumnNormalizerTests
             var normalized = AthenaColumnNormalizer.Normalize(mapping.Key);
 
             // Assert
-            normalized.Should().Be(mapping.Value,
-                $"Key '{mapping.Key}' normalized to '{normalized}' but dictionary has '{mapping.Value}'");
+            Assert.Equal(mapping.Value, normalized);
         }
     }
 
@@ -280,6 +274,6 @@ public class AthenaColumnNormalizerTests
         var result = AthenaColumnNormalizer.Normalize(input);
 
         // Assert
-        result.Should().Be(expected);
+        Assert.Equal(expected, result);
     }
 }

@@ -1,5 +1,4 @@
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace AwsCurAnonymize.Core;
 
@@ -63,7 +62,7 @@ public static class AthenaColumnNormalizer
 
         // Rule 5: Remove leading/trailing underscores
         var normalized = result.ToString().Trim('_');
-        
+
         return normalized;
     }
 
@@ -74,14 +73,14 @@ public static class AthenaColumnNormalizer
     public static string CreateColumnAlias(string originalName)
     {
         var normalized = Normalize(originalName);
-        
+
         // If original name contains special chars, quote it
-        bool needsQuoting = originalName.Contains('/') || 
-                           originalName.Contains(' ') || 
+        bool needsQuoting = originalName.Contains('/') ||
+                           originalName.Contains(' ') ||
                            originalName.Contains('-');
-        
+
         var quotedOriginal = needsQuoting ? $"\"{originalName}\"" : originalName;
-        
+
         return $"{quotedOriginal} AS {normalized}";
     }
 

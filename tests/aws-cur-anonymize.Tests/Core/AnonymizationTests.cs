@@ -1,9 +1,3 @@
-using FluentAssertions;
-using Xunit;
-using AwsCurAnonymize.Core;
-using System.IO;
-using System.Threading.Tasks;
-
 namespace AwsCurAnonymize.Tests.Core;
 
 /// <summary>
@@ -33,19 +27,19 @@ public class AnonymizationTests
 
             // Assert
             var outputFile = Path.Combine(tempOutput, "cur_detail.csv");
-            File.Exists(outputFile).Should().BeTrue();
+            Assert.True(File.Exists(outputFile));
 
             var outputContent = File.ReadAllText(outputFile);
 
             // CRITICAL: Original account IDs must NOT appear in output
-            outputContent.Should().NotContain("123456789012", "original account IDs should be anonymized");
-            outputContent.Should().NotContain("987654321098", "original account IDs should be anonymized");
-            outputContent.Should().NotContain("999888777666", "original account IDs should be anonymized");
+            Assert.DoesNotContain("123456789012", outputContent);
+            Assert.DoesNotContain("987654321098", outputContent);
+            Assert.DoesNotContain("999888777666", outputContent);
 
             // Account ID columns should exist with anonymized values
             var headerLine = File.ReadLines(outputFile).First();
-            headerLine.Should().Contain("bill_payer_account_id", "payer account column should be present with anonymized values");
-            headerLine.Should().Contain("line_item_usage_account_id", "usage account column should be present with anonymized values");
+            Assert.Contains("bill_payer_account_id", headerLine);
+            Assert.Contains("line_item_usage_account_id", headerLine);
 
             // All account IDs should be 12-digit numbers
             var dataLines = File.ReadAllLines(outputFile).Skip(1);
@@ -53,7 +47,7 @@ public class AnonymizationTests
             {
                 var fields = line.Split(',');
                 // Verify account ID fields are 12-digit numbers (anonymized format)
-                fields.Should().Contain(f => f.Length == 12 && f.All(char.IsDigit), "all account IDs should be anonymized to 12-digit format");
+                Assert.True(fields.Any(f => f.Length == 12 && f.All(char.IsDigit)));
             }
         }
         finally
@@ -92,14 +86,14 @@ public class AnonymizationTests
             var secondRun = File.ReadAllText(Path.Combine(tempOutput, "cur_detail.csv"));
 
             // Assert - outputs should be identical (deterministic)
-            firstRun.Should().Be(secondRun, "same salt should produce same anonymized IDs");
+            Assert.Equal(firstRun, secondRun);
 
             // Change salt and verify different output
             File.Delete(Path.Combine(tempOutput, "cur_detail.csv"));
             await CurPipeline.WriteDetailAsync(tempInput, tempOutput, "DIFFERENT-SALT", "csv");
             var differentSalt = File.ReadAllText(Path.Combine(tempOutput, "cur_detail.csv"));
 
-            differentSalt.Should().NotBe(firstRun, "different salt should produce different anonymized IDs");
+            Assert.NotEqual(firstRun, differentSalt);
         }
         finally
         {
@@ -135,7 +129,7 @@ public class AnonymizationTests
             var dataLine = File.ReadLines(outputFile).Skip(1).First();
 
             // Verify header contains account ID columns
-            headerLine.Should().Contain("bill_payer_account_id");
+            Assert.Contains("bill_payer_account_id", headerLine);
 
             // Extract account ID from data line
             var headers = headerLine.Split(',');
@@ -143,7 +137,7 @@ public class AnonymizationTests
             var payerAccountIndex = Array.IndexOf(headers, "bill_payer_account_id");
             var anonymizedId = values[payerAccountIndex];
 
-            anonymizedId.Should().MatchRegex(@"^\d{12}$", "anonymized ID should be 12-digit numeric string");
+            Assert.Matches(@"^\d{12}$", anonymizedId);
         }
         finally
         {

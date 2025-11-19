@@ -1,5 +1,3 @@
-using Xunit;
-using FluentAssertions;
 using DuckDB.NET.Data;
 
 namespace AwsCurAnonymize.Tests.Core;
@@ -82,10 +80,10 @@ public class AthenaCompatibilityTests : IDisposable
         }
 
         // Should have all 9 expected columns
-        foundColumns.Should().HaveCount(9);
-        foundColumns.Should().Contain("bill_payer_account_id");
-        foundColumns.Should().Contain("line_item_usage_start_date");
-        foundColumns.Should().Contain("line_item_unblended_cost");
+        Assert.Equal(9, foundColumns.Count);
+        Assert.Contains("bill_payer_account_id", foundColumns);
+        Assert.Contains("line_item_usage_start_date", foundColumns);
+        Assert.Contains("line_item_unblended_cost", foundColumns);
     }
 
     [Fact]
@@ -126,13 +124,13 @@ public class AthenaCompatibilityTests : IDisposable
             {
                 rowCount++;
                 // Verify structure
-                reader.GetString(0).Should().NotBeNullOrEmpty(); // product_code
-                reader.GetValue(1).Should().NotBeNull(); // month
+                Assert.False(string.IsNullOrEmpty(reader.GetString(0))); // product_code
+                Assert.NotNull(reader.GetValue(1)); // month
                 // Cost can be any valid double (positive or negative)
             }
         }
 
-        rowCount.Should().BeGreaterThan(0, "Query should return results");
+        Assert.True(rowCount > 0, "Query should return results");
     }
 
     [Fact]
@@ -170,12 +168,12 @@ public class AthenaCompatibilityTests : IDisposable
             while (await reader.ReadAsync())
             {
                 rowCount++;
-                reader.GetString(0).Should().NotBeNullOrEmpty(); // resource_id
-                reader.GetString(1).Should().NotBeNullOrEmpty(); // product_code
+                Assert.False(string.IsNullOrEmpty(reader.GetString(0))); // resource_id
+                Assert.False(string.IsNullOrEmpty(reader.GetString(1))); // product_code
             }
         }
 
-        rowCount.Should().BeGreaterThan(0, "Query should return top resources");
+        Assert.True(rowCount > 0, "Query should return top resources");
     }
 
     [Fact]
@@ -213,12 +211,12 @@ public class AthenaCompatibilityTests : IDisposable
             while (await reader.ReadAsync())
             {
                 rowCount++;
-                reader.GetValue(0).Should().NotBeNull(); // date
-                reader.GetString(1).Should().NotBeNullOrEmpty(); // product_code
+                Assert.NotNull(reader.GetValue(0)); // date
+                Assert.False(string.IsNullOrEmpty(reader.GetString(1))); // product_code
             }
         }
 
-        rowCount.Should().BeGreaterThan(0, "Query should return daily trends");
+        Assert.True(rowCount > 0, "Query should return daily trends");
     }
 
     [Fact]
@@ -254,12 +252,12 @@ public class AthenaCompatibilityTests : IDisposable
             while (await reader.ReadAsync())
             {
                 rowCount++;
-                reader.GetString(0).Should().NotBeNullOrEmpty(); // payer account
-                reader.GetString(1).Should().NotBeNullOrEmpty(); // usage account
+                Assert.False(string.IsNullOrEmpty(reader.GetString(0))); // payer account
+                Assert.False(string.IsNullOrEmpty(reader.GetString(1))); // usage account
             }
         }
 
-        rowCount.Should().BeGreaterThan(0, "Query should return account costs");
+        Assert.True(rowCount > 0, "Query should return account costs");
     }
 
     [Fact]
@@ -279,8 +277,7 @@ public class AthenaCompatibilityTests : IDisposable
         foreach (var testCase in testCases)
         {
             var normalized = AthenaColumnNormalizer.Normalize(testCase.Key);
-            normalized.Should().Be(testCase.Value,
-                $"Column '{testCase.Key}' should normalize to '{testCase.Value}'");
+            Assert.Equal(testCase.Value, normalized);
         }
     }
 

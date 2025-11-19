@@ -1,7 +1,3 @@
-using Xunit;
-using FluentAssertions;
-using AwsCurAnonymize.Core;
-
 namespace AwsCurAnonymize.Tests.Core;
 
 /// <summary>
@@ -24,13 +20,13 @@ public class CurSchemaTests : IDisposable
         var mapping = CurSchemaMapping.ForVersion(CurSchemaVersion.LegacyCsv);
 
         // Assert
-        mapping.Version.Should().Be(CurSchemaVersion.LegacyCsv);
-        mapping.UsageStartDate.Should().Be("\"lineItem/UsageStartDate\"");
-        mapping.PayerAccountId.Should().Be("\"bill/PayerAccountId\"");
-        mapping.ProductName.Should().Be("\"product/ProductName\"");
-        mapping.UsageType.Should().Be("\"lineItem/UsageType\"");
-        mapping.UnblendedCost.Should().Be("\"lineItem/UnblendedCost\"");
-        mapping.UsageAmount.Should().Be("\"lineItem/UsageAmount\"");
+        Assert.Equal(CurSchemaVersion.LegacyCsv, mapping.Version);
+        Assert.Equal("\"lineItem/UsageStartDate\"", mapping.UsageStartDate);
+        Assert.Equal("\"bill/PayerAccountId\"", mapping.PayerAccountId);
+        Assert.Equal("\"product/ProductName\"", mapping.ProductName);
+        Assert.Equal("\"lineItem/UsageType\"", mapping.UsageType);
+        Assert.Equal("\"lineItem/UnblendedCost\"", mapping.UnblendedCost);
+        Assert.Equal("\"lineItem/UsageAmount\"", mapping.UsageAmount);
     }
 
     [Fact]
@@ -40,13 +36,13 @@ public class CurSchemaTests : IDisposable
         var mapping = CurSchemaMapping.ForVersion(CurSchemaVersion.LegacyParquet);
 
         // Assert
-        mapping.Version.Should().Be(CurSchemaVersion.LegacyParquet);
-        mapping.UsageStartDate.Should().Be("lineitem_usagestartdate");
-        mapping.PayerAccountId.Should().Be("bill_payeraccountid");
-        mapping.ProductName.Should().Be("product_productname");
-        mapping.UsageType.Should().Be("lineitem_usagetype");
-        mapping.UnblendedCost.Should().Be("lineitem_unblendedcost");
-        mapping.UsageAmount.Should().Be("lineitem_usageamount");
+        Assert.Equal(CurSchemaVersion.LegacyParquet, mapping.Version);
+        Assert.Equal("lineitem_usagestartdate", mapping.UsageStartDate);
+        Assert.Equal("bill_payeraccountid", mapping.PayerAccountId);
+        Assert.Equal("product_productname", mapping.ProductName);
+        Assert.Equal("lineitem_usagetype", mapping.UsageType);
+        Assert.Equal("lineitem_unblendedcost", mapping.UnblendedCost);
+        Assert.Equal("lineitem_usageamount", mapping.UsageAmount);
     }
 
     [Fact]
@@ -56,13 +52,13 @@ public class CurSchemaTests : IDisposable
         var mapping = CurSchemaMapping.ForVersion(CurSchemaVersion.Cur20);
 
         // Assert
-        mapping.Version.Should().Be(CurSchemaVersion.Cur20);
-        mapping.UsageStartDate.Should().Be("line_item_usage_start_date");
-        mapping.PayerAccountId.Should().Be("bill_payer_account_id");
-        mapping.ProductName.Should().Be("product_product_name");
-        mapping.UsageType.Should().Be("line_item_usage_type");
-        mapping.UnblendedCost.Should().Be("line_item_unblended_cost");
-        mapping.UsageAmount.Should().Be("line_item_usage_amount");
+        Assert.Equal(CurSchemaVersion.Cur20, mapping.Version);
+        Assert.Equal("line_item_usage_start_date", mapping.UsageStartDate);
+        Assert.Equal("bill_payer_account_id", mapping.PayerAccountId);
+        Assert.Equal("product_product_name", mapping.ProductName);
+        Assert.Equal("line_item_usage_type", mapping.UsageType);
+        Assert.Equal("line_item_unblended_cost", mapping.UnblendedCost);
+        Assert.Equal("line_item_usage_amount", mapping.UsageAmount);
     }
 
     [Theory]
@@ -75,7 +71,7 @@ public class CurSchemaTests : IDisposable
         var result = CurSchemaMapping.DetectFromCsvHeader(headerLine);
 
         // Assert
-        result.Should().Be(expected);
+        Assert.Equal(expected, result);
     }
 
     [Theory]
@@ -87,7 +83,7 @@ public class CurSchemaTests : IDisposable
         var result = CurSchemaMapping.DetectFromCsvHeader(headerLine);
 
         // Assert
-        result.Should().Be(expected);
+        Assert.Equal(expected, result);
     }
 
     [Theory]
@@ -100,7 +96,7 @@ public class CurSchemaTests : IDisposable
         var result = CurSchemaMapping.DetectFromCsvHeader(headerLine);
 
         // Assert
-        result.Should().Be(CurSchemaVersion.LegacyCsv);
+        Assert.Equal(CurSchemaVersion.LegacyCsv, result);
     }
 
     [Fact]
@@ -114,7 +110,7 @@ public class CurSchemaTests : IDisposable
         var result = await CurSchemaMapping.DetectFromCsvFileAsync(csvPath);
 
         // Assert
-        result.Should().Be(CurSchemaVersion.LegacyCsv);
+        Assert.Equal(CurSchemaVersion.LegacyCsv, result);
     }
 
     [Fact]
@@ -128,7 +124,7 @@ public class CurSchemaTests : IDisposable
         var result = await CurSchemaMapping.DetectFromCsvFileAsync(csvPath);
 
         // Assert
-        result.Should().Be(CurSchemaVersion.Cur20);
+        Assert.Equal(CurSchemaVersion.Cur20, result);
     }
 
     [Fact]
@@ -164,7 +160,7 @@ public class CurSchemaTests : IDisposable
         var result = await CurSchemaMapping.DetectFromGlobAsync(globPattern);
 
         // Assert
-        result.Should().Be(CurSchemaVersion.LegacyParquet);
+        Assert.Equal(CurSchemaVersion.LegacyParquet, result);
     }
 
     [Fact]
@@ -177,7 +173,7 @@ public class CurSchemaTests : IDisposable
         var result = await CurSchemaMapping.DetectFromGlobAsync(globPattern);
 
         // Assert
-        result.Should().Be(CurSchemaVersion.LegacyParquet);
+        Assert.Equal(CurSchemaVersion.LegacyParquet, result);
     }
 
     [Fact]
@@ -195,7 +191,7 @@ public class CurSchemaTests : IDisposable
         var result = await CurSchemaMapping.DetectFromGlobAsync(globPattern);
 
         // Assert - should detect based on first file alphabetically
-        result.Should().BeOneOf(CurSchemaVersion.LegacyCsv, CurSchemaVersion.Cur20);
+        Assert.True(new[] { CurSchemaVersion.LegacyCsv, CurSchemaVersion.Cur20 }.Contains(result));
     }
 
     [Fact]
@@ -229,14 +225,14 @@ public class CurSchemaTests : IDisposable
         var cur20 = CurSchemaMapping.ForVersion(CurSchemaVersion.Cur20);
 
         // Assert - all should have different column names
-        csv.PayerAccountId.Should().NotBe(parquet.PayerAccountId);
-        csv.PayerAccountId.Should().NotBe(cur20.PayerAccountId);
-        parquet.PayerAccountId.Should().NotBe(cur20.PayerAccountId);
+        Assert.NotEqual(parquet.PayerAccountId, csv.PayerAccountId);
+        Assert.NotEqual(cur20.PayerAccountId, csv.PayerAccountId);
+        Assert.NotEqual(cur20.PayerAccountId, parquet.PayerAccountId);
 
         // Legacy CSV should have quotes
-        csv.PayerAccountId.Should().Contain("\"");
-        parquet.PayerAccountId.Should().NotContain("\"");
-        cur20.PayerAccountId.Should().NotContain("\"");
+        Assert.Contains("\"", csv.PayerAccountId);
+        Assert.DoesNotContain("\"", parquet.PayerAccountId);
+        Assert.DoesNotContain("\"", cur20.PayerAccountId);
     }
 
     [Theory]
@@ -249,12 +245,12 @@ public class CurSchemaTests : IDisposable
         var mapping = CurSchemaMapping.ForVersion(version);
 
         // Assert - all mappings should have all required columns
-        mapping.UsageStartDate.Should().NotBeNullOrEmpty();
-        mapping.PayerAccountId.Should().NotBeNullOrEmpty();
-        mapping.ProductName.Should().NotBeNullOrEmpty();
-        mapping.UsageType.Should().NotBeNullOrEmpty();
-        mapping.UnblendedCost.Should().NotBeNullOrEmpty();
-        mapping.UsageAmount.Should().NotBeNullOrEmpty();
+        Assert.False(string.IsNullOrEmpty(mapping.UsageStartDate));
+        Assert.False(string.IsNullOrEmpty(mapping.PayerAccountId));
+        Assert.False(string.IsNullOrEmpty(mapping.ProductName));
+        Assert.False(string.IsNullOrEmpty(mapping.UsageType));
+        Assert.False(string.IsNullOrEmpty(mapping.UnblendedCost));
+        Assert.False(string.IsNullOrEmpty(mapping.UsageAmount));
     }
 
     [Fact]
@@ -271,9 +267,9 @@ public class CurSchemaTests : IDisposable
         var resultMixed = CurSchemaMapping.DetectFromCsvHeader(headerMixed);
 
         // Assert - all should detect as LegacyCsv
-        resultLower.Should().Be(CurSchemaVersion.LegacyCsv);
-        resultUpper.Should().Be(CurSchemaVersion.LegacyCsv);
-        resultMixed.Should().Be(CurSchemaVersion.LegacyCsv);
+        Assert.Equal(CurSchemaVersion.LegacyCsv, resultLower);
+        Assert.Equal(CurSchemaVersion.LegacyCsv, resultUpper);
+        Assert.Equal(CurSchemaVersion.LegacyCsv, resultMixed);
     }
 
     public void Dispose()

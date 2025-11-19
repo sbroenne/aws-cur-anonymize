@@ -1,9 +1,3 @@
-using FluentAssertions;
-using Xunit;
-using AwsCurAnonymize.Core;
-using System.IO;
-using System.Threading.Tasks;
-
 namespace AwsCurAnonymize.Tests.Core;
 
 /// <summary>
@@ -17,11 +11,9 @@ public class ErrorHandlingTests
         // Arrange
         var nonExistentFile = Path.Combine(Path.GetTempPath(), $"nonexistent-{Guid.NewGuid()}.csv");
 
-        // Act
-        Func<Task> act = async () => await CurSchemaMapping.DetectFromCsvFileAsync(nonExistentFile);
-
-        // Assert
-        await act.Should().ThrowAsync<FileNotFoundException>();
+        // Act & Assert
+        await Assert.ThrowsAsync<FileNotFoundException>(
+            async () => await CurSchemaMapping.DetectFromCsvFileAsync(nonExistentFile));
     }
 
     [Fact]
@@ -33,11 +25,9 @@ public class ErrorHandlingTests
         {
             File.WriteAllText(tempFile, string.Empty);
 
-            // Act
-            Func<Task> act = async () => await CurSchemaMapping.DetectFromCsvFileAsync(tempFile);
-
-            // Assert
-            await act.Should().ThrowAsync<InvalidDataException>();
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidDataException>(
+                async () => await CurSchemaMapping.DetectFromCsvFileAsync(tempFile));
         }
         finally
         {
@@ -54,11 +44,9 @@ public class ErrorHandlingTests
         {
             File.WriteAllText(tempFile, "\n\n\n");
 
-            // Act
-            Func<Task> act = async () => await CurSchemaMapping.DetectFromCsvFileAsync(tempFile);
-
-            // Assert
-            await act.Should().ThrowAsync<InvalidDataException>();
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidDataException>(
+                async () => await CurSchemaMapping.DetectFromCsvFileAsync(tempFile));
         }
         finally
         {
@@ -73,7 +61,7 @@ public class ErrorHandlingTests
         var result = CurSchemaMapping.DetectFromCsvHeader(string.Empty);
 
         // Assert
-        result.Should().Be(CurSchemaVersion.LegacyCsv);
+        Assert.Equal(CurSchemaVersion.LegacyCsv, result);
     }
 
     [Fact]
@@ -83,7 +71,7 @@ public class ErrorHandlingTests
         var result = CurSchemaMapping.DetectFromCsvHeader("   \t  \n  ");
 
         // Assert
-        result.Should().Be(CurSchemaVersion.LegacyCsv);
+        Assert.Equal(CurSchemaVersion.LegacyCsv, result);
     }
 
     [Fact]
@@ -96,7 +84,7 @@ public class ErrorHandlingTests
         var result = CurSchemaMapping.DetectFromCsvHeader(invalidHeader);
 
         // Assert
-        result.Should().Be(CurSchemaVersion.LegacyCsv);
+        Assert.Equal(CurSchemaVersion.LegacyCsv, result);
     }
 
     [Fact]
@@ -105,11 +93,9 @@ public class ErrorHandlingTests
         // Arrange
         var nonExistentPath = Path.Combine(Path.GetTempPath(), $"nonexistent-{Guid.NewGuid()}", "*.csv");
 
-        // Act
-        Func<Task> act = async () => await CurSchemaMapping.DetectFromGlobAsync(nonExistentPath);
-
-        // Assert
-        await act.Should().ThrowAsync<DirectoryNotFoundException>();
+        // Act & Assert
+        await Assert.ThrowsAsync<DirectoryNotFoundException>(
+            async () => await CurSchemaMapping.DetectFromGlobAsync(nonExistentPath));
     }
 
     [Fact]
@@ -122,11 +108,9 @@ public class ErrorHandlingTests
         {
             var globPattern = Path.Combine(tempDir, "*.csv");
 
-            // Act
-            Func<Task> act = async () => await CurSchemaMapping.DetectFromGlobAsync(globPattern);
-
-            // Assert
-            await act.Should().ThrowAsync<FileNotFoundException>();
+            // Act & Assert
+            await Assert.ThrowsAsync<FileNotFoundException>(
+                async () => await CurSchemaMapping.DetectFromGlobAsync(globPattern));
         }
         finally
         {
@@ -141,7 +125,7 @@ public class ErrorHandlingTests
         var result = AthenaColumnNormalizer.Normalize(null!);
 
         // Assert
-        result.Should().BeNull();
+        Assert.Null(result);
     }
 
     [Fact]
@@ -151,7 +135,7 @@ public class ErrorHandlingTests
         var result = AthenaColumnNormalizer.Normalize("   ");
 
         // Assert
-        result.Should().Be("   ");
+        Assert.Equal("   ", result);
     }
 
     [Fact]
@@ -161,17 +145,14 @@ public class ErrorHandlingTests
         var result = AthenaColumnNormalizer.CreateColumnAlias("lineItem/UsageStartDate");
 
         // Assert
-        result.Should().Be("\"lineItem/UsageStartDate\" AS line_item_usage_start_date");
+        Assert.Equal("\"lineItem/UsageStartDate\" AS line_item_usage_start_date", result);
     }
 
     [Fact]
     public void CurSchemaMapping_ThrowsArgumentException_WhenVersionIsInvalid()
     {
-        // Act
-        Action act = () => CurSchemaMapping.ForVersion((CurSchemaVersion)999);
-
-        // Assert
-        act.Should().Throw<ArgumentException>()
-            .WithMessage("*version*");
+        // Act & Assert
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => CurSchemaMapping.ForVersion((CurSchemaVersion)999));
+        Assert.Contains("version", ex.Message);
     }
 }

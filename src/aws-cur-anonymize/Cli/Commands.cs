@@ -32,7 +32,7 @@ public class RunSettings : CommandSettings
 
 public class RunCommand : AsyncCommand<RunSettings>
 {
-    public override async Task<int> ExecuteAsync(CommandContext context, RunSettings settings)
+    public override async Task<int> ExecuteAsync(CommandContext context, RunSettings settings, CancellationToken cancellationToken)
     {
         // Show banner
         ShowBanner();
@@ -142,7 +142,8 @@ public class RunCommand : AsyncCommand<RunSettings>
             AnsiConsole.MarkupLine($"[green]✓[/] Output: [cyan]{Path.Combine(output, detailFile)}[/]");
 
             // Display statistics
-            AnsiConsole.MarkupLine($"[dim]  Columns: {stats.OriginalColumnCount} → {stats.OutputColumnCount}[/]");
+            AnsiConsole.MarkupLine($"[dim]  Columns: {stats.OriginalColumnCount} -> {stats.OutputColumnCount}[/]");
+            AnsiConsole.MarkupLine($"[dim]  Rows: {stats.InputRowCount:N0} -> {stats.OutputRowCount:N0}[/]");
             if (stats.AnonymizedAccountColumns > 0 || stats.AnonymizedArnColumns > 0 || stats.HashedTagColumns > 0)
             {
                 var anonymized = new List<string>();
