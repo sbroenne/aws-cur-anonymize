@@ -1,0 +1,5 @@
+line_item_usage_start_date,line_item_usage_end_date,bill_payer_account_id,line_item_usage_account_id,line_item_product_code,line_item_usage_type,line_item_operation,line_item_availability_zone,line_item_resource_id,line_item_usage_amount,line_item_unblended_cost,line_item_blended_cost,product_product_name
+2025-01-01T00:00:00Z,2025-01-01T01:00:00Z,123456789012,123456789012,AmazonEC2,BoxUsage:t3.micro,RunInstances,us-east-1a,i-1234567890abcdef0,1.0,0.0104,0.0104,Amazon Elastic Compute Cloud
+2025-01-01T01:00:00Z,2025-01-01T02:00:00Z,123456789012,123456789012,AmazonEC2,BoxUsage:t3.micro,RunInstances,us-east-1a,i-1234567890abcdef0,1.0,0.0104,0.0104,Amazon Elastic Compute Cloud
+2025-01-01T01:00:00Z,2025-01-01T02:00:00Z,123456789012,987654321098,AmazonRDS,InstanceUsage:db.t3.small,RunInstances,us-west-2a,db-ABCDEFGHIJKLMN,1.0,0.034,0.034,Amazon Relational Database Service
+2025-01-02T00:00:00Z,2025-01-02T01:00:00Z,123456789012,123456789012,AmazonEC2,BoxUsage:t3.micro,RunInstances,us-east-1a,i-1234567890abcdef0,1.0,0.0104,0.0104,Amazon Elastic Compute Cloud

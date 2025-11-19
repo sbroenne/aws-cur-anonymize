@@ -1,0 +1,35 @@
+# AWS CUR Anonymization Configuration
+# Purpose: Prepare AWS Cost & Usage Report data for cross-cloud pricing comparison (AWS → Azure/Google)
+#
+# This config excludes only sensitive/unnecessary columns while keeping everything else:
+# - Usage quantities, service details, resource specs, and public pricing
+# - Filters out identity columns, internal metadata, and customer-specific pricing
+
+# Column Exclusion: Remove only these columns from output (keep everything else)
+exclude_patterns:
+  - identity_*                        # Identity: Remove AWS internal identity tracking columns
+  - bill_*                            # Billing: Remove invoice-specific billing details
+  - reservation_*                     # Reservations: Remove RI-specific pricing (customer-specific rates)
+  - savings_plan_*                    # Savings Plans: Remove SP-specific details (customer-specific rates)
+  - discount_*                        # Discounts: Remove negotiated/promotional discounts (customer-specific)
+  - line_item_unblended_cost          # Cost: Remove actual costs paid (customer-specific)
+  - line_item_unblended_rate          # Cost: Remove actual rates paid (customer-specific)
+  - line_item_blended_cost            # Cost: Remove blended costs (customer-specific)
+  - line_item_blended_rate            # Cost: Remove blended rates (customer-specific)
+  - line_item_net_unblended_cost      # Cost: Remove after-discount costs (customer-specific)
+  - line_item_net_unblended_rate      # Cost: Remove after-discount rates (customer-specific)
+
+# Anonymization: Protect sensitive account data
+anonymization:
+  anonymize_account_ids: true         # Replace account IDs with deterministic hashed values
+  anonymize_arns: true                # Anonymize account IDs within ARNs
+  hash_tags: false                    # Keep tags readable (set true to hash sensitive tag values)
+
+# Row Filtering: Keep only actual resource usage rows
+# Filters out fees, taxes, credits, and other non-usage line items
+row_filters:
+  line_item_line_item_type:
+    - Usage                           # Regular on-demand usage
+    - SavingsPlanCoveredUsage         # Usage covered by Savings Plans
+    - DiscountedUsage                 # Usage covered by Reserved Instances
+  # Filtered out: RIFee, Fee, Tax, Credit, SavingsPlanNegation, SavingsPlanRecurringFee

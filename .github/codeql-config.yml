@@ -1,0 +1,62 @@
+# CodeQL configuration for aws-cur-anonymize
+# This file configures the CodeQL static analysis to focus on security vulnerabilities
+# and code quality issues that are relevant to the aws-cur-anonymize application.
+
+name: "aws-cur-anonymize CodeQL Config"
+
+# Query suites to run
+queries:
+  # Extended security queries go beyond the default security queries
+  - uses: security-extended
+  # Security and quality queries focus on both security vulnerabilities and code quality issues
+  - uses: security-and-quality
+  # Add C# specific queries to address .NET specific concerns
+  - uses: security-and-quality/csharp/all
+
+# Query filtering configuration
+query-filters:
+  # Exclude low-severity issues to focus on what matters most
+  - exclude:
+      problem.severity:
+        - note
+        - recommendation
+  # Focus on high-confidence results
+  - exclude:
+      precision:
+        - low
+
+# Resource and analysis limits
+paths:
+  # Prioritize scanning core application code
+  - src/**/*.cs
+
+paths-ignore:
+  # Generated code
+  - '**/obj/**'
+  - '**/bin/**'
+  # Test code (exclude all test projects and test folders)
+  - 'tests/**'
+  - '**/tests/**'
+  - '**/*.Test/**'
+  - '**/*.Tests/**'
+  - '**/TestResults/**'
+  - '**/testdata/**'
+  # Third-party libraries
+  - '**/lib/**'
+  - '**/vendor/**'
+  - '**/node_modules/**'
+  # Build artifacts
+  - '**/dist/**'
+  - '**/publish/**'
+  # CUR data files
+  - 'curdata/**'
+  - '**/*.csv'
+  - '**/*.parquet'
+
+# Language-specific configuration
+extraction:
+  csharp:
+    # Use .NET 10.0 for analysis since aws-cur-anonymize targets .NET 10
+    buildless: true
+    dotnet:
+      version: 8.0.100
