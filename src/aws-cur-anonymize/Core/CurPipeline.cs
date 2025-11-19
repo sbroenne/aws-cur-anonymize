@@ -9,7 +9,9 @@ public record CurProcessingStats(
     int OutputColumnCount,
     int AnonymizedAccountColumns,
     int AnonymizedArnColumns,
-    int HashedTagColumns
+    int HashedTagColumns,
+    long InputRowCount,
+    long OutputRowCount
 );
 
 public static class CurPipeline
@@ -212,6 +214,10 @@ public static class CurPipeline
             .Where(col => col.Contains("_tags", StringComparison.OrdinalIgnoreCase) || col == "resource_tags")
             .ToList();
 
+        // Count input rows from normalized view (before filtering)
+        cmd.CommandText = "SELECT COUNT(*) FROM cur_normalized;";
+        var inputRowCount = Convert.ToInt64(cmd.ExecuteScalar());
+
         // Build SELECT with anonymized/hashed columns based on config
         var selectBuilder = new StringBuilder();
         selectBuilder.AppendLine("CREATE OR REPLACE VIEW cur_masked AS");
@@ -295,6 +301,10 @@ public static class CurPipeline
         cmd.CommandText = selectBuilder.ToString();
         cmd.ExecuteNonQuery();
 
+        // Count output rows from masked view (after filtering)
+        cmd.CommandText = "SELECT COUNT(*) FROM cur_masked;";
+        var outputRowCount = Convert.ToInt64(cmd.ExecuteScalar());
+
         cmd.CommandText = fmt == "parquet"
             ? $"COPY (SELECT * FROM cur_masked) TO '{Q(outPath)}' (FORMAT PARQUET, COMPRESSION 'SNAPPY');"
             : $"COPY (SELECT * FROM cur_masked) TO '{Q(outPath)}' (FORMAT CSV, HEADER TRUE);";
@@ -305,7 +315,9 @@ public static class CurPipeline
             OutputColumnCount: selectColumns.Count,
             AnonymizedAccountColumns: anonymizedAccountCols,
             AnonymizedArnColumns: anonymizedArnCols,
-            HashedTagColumns: hashedTagCols
+            HashedTagColumns: hashedTagCols,
+            InputRowCount: inputRowCount,
+            OutputRowCount: outputRowCount
         );
     }
 
