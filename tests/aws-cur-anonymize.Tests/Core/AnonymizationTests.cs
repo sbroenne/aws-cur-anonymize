@@ -22,8 +22,22 @@ public class AnonymizationTests
 
             File.WriteAllText(tempInput, csvContent);
 
+            // Create test config that keeps and anonymizes account IDs
+            var configPath = Path.Combine(tempOutput, "test-config.yaml");
+            var config = new CurConfig
+            {
+                Anonymization = new AnonymizationSettings
+                {
+                    AnonymizationPatterns = new List<string>
+                    {
+                        "*_account_id"
+                    }
+                }
+            };
+            await ConfigLoader.SaveConfigAsync(configPath, config);
+
             // Act
-            await CurPipeline.WriteDetailAsync(tempInput, tempOutput, "TEST-SALT", "csv");
+            await CurPipeline.WriteDetailAsync(tempInput, tempOutput, "TEST-SALT", "csv", configPath);
 
             // Assert
             var outputFile = Path.Combine(tempOutput, "cur_detail.csv");
@@ -41,13 +55,13 @@ public class AnonymizationTests
             Assert.Contains("bill_payer_account_id", headerLine);
             Assert.Contains("line_item_usage_account_id", headerLine);
 
-            // All account IDs should be 12-digit numbers
+            // All account IDs should be 16-char MD5 hashes
             var dataLines = File.ReadAllLines(outputFile).Skip(1);
             foreach (var line in dataLines)
             {
                 var fields = line.Split(',');
-                // Verify account ID fields are 12-digit numbers (anonymized format)
-                Assert.True(fields.Any(f => f.Length == 12 && f.All(char.IsDigit)));
+                // Verify account ID fields are 16-char hex strings (MD5 hash format)
+                Assert.Contains(fields, f => f.Length == 16 && f.All(c => "0123456789abcdef".Contains(c)));
             }
         }
         finally
@@ -76,13 +90,27 @@ public class AnonymizationTests
 
             File.WriteAllText(tempInput, csvContent);
 
+            // Create test config that keeps and anonymizes account IDs
+            var configPath = Path.Combine(tempOutput, "test-config.yaml");
+            var config = new CurConfig
+            {
+                Anonymization = new AnonymizationSettings
+                {
+                    AnonymizationPatterns = new List<string>
+                    {
+                        "*_account_id"
+                    }
+                }
+            };
+            await ConfigLoader.SaveConfigAsync(configPath, config);
+
             // Act - run twice with same salt
-            await CurPipeline.WriteDetailAsync(tempInput, tempOutput, "CONSISTENT-SALT", "csv");
+            await CurPipeline.WriteDetailAsync(tempInput, tempOutput, "CONSISTENT-SALT", "csv", configPath);
 
             var firstRun = File.ReadAllText(Path.Combine(tempOutput, "cur_detail.csv"));
             File.Delete(Path.Combine(tempOutput, "cur_detail.csv"));
 
-            await CurPipeline.WriteDetailAsync(tempInput, tempOutput, "CONSISTENT-SALT", "csv");
+            await CurPipeline.WriteDetailAsync(tempInput, tempOutput, "CONSISTENT-SALT", "csv", configPath);
             var secondRun = File.ReadAllText(Path.Combine(tempOutput, "cur_detail.csv"));
 
             // Assert - outputs should be identical (deterministic)
@@ -90,7 +118,7 @@ public class AnonymizationTests
 
             // Change salt and verify different output
             File.Delete(Path.Combine(tempOutput, "cur_detail.csv"));
-            await CurPipeline.WriteDetailAsync(tempInput, tempOutput, "DIFFERENT-SALT", "csv");
+            await CurPipeline.WriteDetailAsync(tempInput, tempOutput, "DIFFERENT-SALT", "csv", configPath);
             var differentSalt = File.ReadAllText(Path.Combine(tempOutput, "cur_detail.csv"));
 
             Assert.NotEqual(firstRun, differentSalt);
@@ -120,8 +148,22 @@ public class AnonymizationTests
 
             File.WriteAllText(tempInput, csvContent);
 
+            // Create test config that keeps and anonymizes account IDs
+            var configPath = Path.Combine(tempOutput, "test-config.yaml");
+            var config = new CurConfig
+            {
+                Anonymization = new AnonymizationSettings
+                {
+                    AnonymizationPatterns = new List<string>
+                    {
+                        "*_account_id"
+                    }
+                }
+            };
+            await ConfigLoader.SaveConfigAsync(configPath, config);
+
             // Act
-            await CurPipeline.WriteDetailAsync(tempInput, tempOutput, "FORMAT-TEST", "csv");
+            await CurPipeline.WriteDetailAsync(tempInput, tempOutput, "FORMAT-TEST", "csv", configPath);
 
             // Assert
             var outputFile = Path.Combine(tempOutput, "cur_detail.csv");
@@ -137,7 +179,8 @@ public class AnonymizationTests
             var payerAccountIndex = Array.IndexOf(headers, "bill_payer_account_id");
             var anonymizedId = values[payerAccountIndex];
 
-            Assert.Matches(@"^\d{12}$", anonymizedId);
+            // MD5 hash produces 16 hex characters
+            Assert.Matches(@"^[a-f0-9]{16}$", anonymizedId);
         }
         finally
         {

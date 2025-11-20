@@ -388,15 +388,25 @@ row_filters:
     - Usage
     - SavingsPlanCoveredUsage
     - DiscountedUsage
+  record_type:
+    - LineItem
+    - PayerLineItem
+    - LinkedLineItem
 ```
 
-This filters out:
+**line_item_line_item_type filter** excludes:
 - `RIFee` - Reserved Instance recurring fees
 - `Fee` - Other AWS fees
 - `Tax` - Tax charges
 - `Credit` - Credits and refunds
 - `SavingsPlanNegation` - Savings Plan adjustments
 - `SavingsPlanRecurringFee` - SP recurring fees
+
+**record_type filter** (for consolidated billing reports):
+- `LineItem` - Standalone account usage (single AWS account, no organization)
+- `PayerLineItem` - Usage charged directly to the payer/master account in an AWS Organization
+- `LinkedLineItem` - Usage from linked/member accounts in an AWS Organization (typically 99% of records)
+- Filters out: `InvoiceTotal`, `StatementTotal`, `AccountTotal`, `CBRounding` (summary/total records)
 
 **When to use**:
 - **Cloud pricing comparison**: Keep only usage rows (default behavior)

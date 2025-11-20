@@ -144,13 +144,9 @@ public class RunCommand : AsyncCommand<RunSettings>
             // Display statistics
             AnsiConsole.MarkupLine($"[dim]  Columns: {stats.OriginalColumnCount} -> {stats.OutputColumnCount}[/]");
             AnsiConsole.MarkupLine($"[dim]  Rows: {stats.InputRowCount:N0} -> {stats.OutputRowCount:N0}[/]");
-            if (stats.AnonymizedAccountColumns > 0 || stats.AnonymizedArnColumns > 0 || stats.HashedTagColumns > 0)
+            if (stats.AnonymizedColumns > 0)
             {
-                var anonymized = new List<string>();
-                if (stats.AnonymizedAccountColumns > 0) anonymized.Add($"{stats.AnonymizedAccountColumns} account");
-                if (stats.AnonymizedArnColumns > 0) anonymized.Add($"{stats.AnonymizedArnColumns} ARN");
-                if (stats.HashedTagColumns > 0) anonymized.Add($"{stats.HashedTagColumns} tag");
-                AnsiConsole.MarkupLine($"[dim]  Anonymized: {string.Join(", ", anonymized)}[/]");
+                AnsiConsole.MarkupLine($"[dim]  Anonymized: {stats.AnonymizedColumns} column(s)[/]");
             }
         }
 

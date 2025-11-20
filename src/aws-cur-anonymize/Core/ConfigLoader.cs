@@ -102,7 +102,7 @@ public static class ConfigLoader
     /// <summary>
     /// Matches a string against a glob pattern (* and ? wildcards).
     /// </summary>
-    private static bool MatchesGlobPattern(string input, string pattern)
+    public static bool MatchesGlobPattern(string input, string pattern)
     {
         // Convert glob pattern to regex
         var regexPattern = "^" + Regex.Escape(pattern)
@@ -123,9 +123,12 @@ public static class ConfigLoader
             Comment = "Auto-generated configuration. Edit patterns and anonymization settings as needed.",
             Anonymization = new AnonymizationSettings
             {
-                AnonymizeAccountIds = true,
-                AnonymizeArns = true,
-                HashTags = true
+                AnonymizationPatterns = new List<string>
+                {
+                    "payer_account_id",
+                    "linked_account_id",
+                    "*_account_id"
+                }
             },
             ExcludePatterns = new List<string>()
         };
