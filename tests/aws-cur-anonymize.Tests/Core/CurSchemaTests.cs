@@ -61,6 +61,22 @@ public class CurSchemaTests : IDisposable
         Assert.Equal("line_item_usage_amount", mapping.UsageAmount);
     }
 
+    [Fact]
+    public void ForVersion_Invoice_ReturnsCorrectMapping()
+    {
+        // Act
+        var mapping = CurSchemaMapping.ForVersion(CurSchemaVersion.Invoice);
+
+        // Assert
+        Assert.Equal(CurSchemaVersion.Invoice, mapping.Version);
+        Assert.Equal("usage_start_date", mapping.UsageStartDate);
+        Assert.Equal("payer_account_id", mapping.PayerAccountId);
+        Assert.Equal("product_name", mapping.ProductName);
+        Assert.Equal("usage_type", mapping.UsageType);
+        Assert.Equal("cost_before_discounts", mapping.UnblendedCost);
+        Assert.Equal("usage_quantity", mapping.UsageAmount);
+    }
+
     [Theory]
     [InlineData("lineItem/UsageStartDate,bill/PayerAccountId", CurSchemaVersion.LegacyCsv)]
     [InlineData("identity/LineItemId,lineItem/UsageStartDate,bill/PayerAccountId", CurSchemaVersion.LegacyCsv)]
@@ -78,6 +94,19 @@ public class CurSchemaTests : IDisposable
     [InlineData("line_item_usage_start_date,bill_payer_account_id", CurSchemaVersion.Cur20)]
     [InlineData("identity_line_item_id,line_item_usage_start_date,bill_payer_account_id", CurSchemaVersion.Cur20)]
     public void DetectFromCsvHeader_Cur20Format_DetectsCorrectly(string headerLine, CurSchemaVersion expected)
+    {
+        // Act
+        var result = CurSchemaMapping.DetectFromCsvHeader(headerLine);
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData("invoice_i_d,payer_account_id,linked_account_id", CurSchemaVersion.Invoice)]
+    [InlineData("record_type,invoice_i_d,usage_start_date", CurSchemaVersion.Invoice)]
+    [InlineData("invoice_i_d,product_name,total_cost", CurSchemaVersion.Invoice)]
+    public void DetectFromCsvHeader_InvoiceFormat_DetectsCorrectly(string headerLine, CurSchemaVersion expected)
     {
         // Act
         var result = CurSchemaMapping.DetectFromCsvHeader(headerLine);
@@ -125,6 +154,20 @@ public class CurSchemaTests : IDisposable
 
         // Assert
         Assert.Equal(CurSchemaVersion.Cur20, result);
+    }
+
+    [Fact]
+    public async Task DetectFromCsvFileAsync_InvoiceFile_DetectsCorrectly()
+    {
+        // Arrange
+        var csvPath = Path.Combine(_tempDir, "invoice.csv");
+        await File.WriteAllTextAsync(csvPath, "invoice_i_d,payer_account_id,linked_account_id,record_type\n123456,123456789012,987654321098,LineItem\n");
+
+        // Act
+        var result = await CurSchemaMapping.DetectFromCsvFileAsync(csvPath);
+
+        // Assert
+        Assert.Equal(CurSchemaVersion.Invoice, result);
     }
 
     [Fact]
@@ -239,6 +282,7 @@ public class CurSchemaTests : IDisposable
     [InlineData(CurSchemaVersion.LegacyCsv)]
     [InlineData(CurSchemaVersion.LegacyParquet)]
     [InlineData(CurSchemaVersion.Cur20)]
+    [InlineData(CurSchemaVersion.Invoice)]
     public void ForVersion_AllVersions_HaveAllRequiredColumns(CurSchemaVersion version)
     {
         // Act

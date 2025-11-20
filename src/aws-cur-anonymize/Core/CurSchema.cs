@@ -12,7 +12,10 @@ public enum CurSchemaVersion
     LegacyParquet,
 
     /// <summary>CUR 2.0 format with snake_case column names (e.g., line_item_usage_start_date)</summary>
-    Cur20
+    Cur20,
+
+    /// <summary>AWS Invoice CSV format with invoice_i_d column and snake_case column names</summary>
+    Invoice
 }
 
 /// <summary>
@@ -69,6 +72,15 @@ public class CurSchemaMapping
             unblendedCost: "line_item_unblended_cost",
             usageAmount: "line_item_usage_amount"
         ),
+        CurSchemaVersion.Invoice => new CurSchemaMapping(
+            version,
+            usageStartDate: "usage_start_date",
+            payerAccountId: "payer_account_id",
+            productName: "product_name",
+            usageType: "usage_type",
+            unblendedCost: "cost_before_discounts",
+            usageAmount: "usage_quantity"
+        ),
         _ => throw new ArgumentOutOfRangeException(nameof(version))
     };
 
@@ -77,6 +89,10 @@ public class CurSchemaMapping
     /// </summary>
     public static CurSchemaVersion DetectFromCsvHeader(string headerLine)
     {
+        // AWS Invoice format: Contains invoice_i_d column
+        if (headerLine.Contains("invoice_i_d", StringComparison.OrdinalIgnoreCase))
+            return CurSchemaVersion.Invoice;
+
         // Legacy CSV: Contains forward-slash columns like "lineItem/UsageStartDate"
         if (headerLine.Contains("lineItem/UsageStartDate", StringComparison.OrdinalIgnoreCase))
             return CurSchemaVersion.LegacyCsv;
