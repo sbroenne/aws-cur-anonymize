@@ -45,9 +45,16 @@ public class CurConfig
             Comment = "Auto-generated default configuration",
             Anonymization = new AnonymizationSettings
             {
-                AnonymizeAccountIds = true,
-                AnonymizeArns = true,
-                HashTags = true
+                AnonymizationPatterns = new List<string>
+                {
+                    "payer_account_id",
+                    "linked_account_id",
+                    "*_account_id"
+                }
+            },
+            RowFilters = new Dictionary<string, List<string>>
+            {
+                { "record_type", new List<string> { "LineItem", "PayerLineItem", "LinkedLineItem" } }
             }
         };
     }
@@ -59,20 +66,10 @@ public class CurConfig
 public class AnonymizationSettings
 {
     /// <summary>
-    /// Automatically anonymize AWS account ID columns.
-    /// Default: true
+    /// Column patterns to anonymize using MD5 hash.
+    /// Supports glob patterns: *, ?
+    /// Example: ["payer_account_id", "linked_account_id", "*_account_name"]
+    /// Default: account ID columns
     /// </summary>
-    public bool AnonymizeAccountIds { get; set; } = true;
-
-    /// <summary>
-    /// Automatically anonymize ARNs in resource ID columns.
-    /// Default: true
-    /// </summary>
-    public bool AnonymizeArns { get; set; } = true;
-
-    /// <summary>
-    /// Hash JSON tag columns (e.g., resource_tags in CUR 2.0).
-    /// Default: true
-    /// </summary>
-    public bool HashTags { get; set; } = true;
+    public List<string>? AnonymizationPatterns { get; set; }
 }

@@ -7,9 +7,7 @@ namespace AwsCurAnonymize.Core;
 public record CurProcessingStats(
     int OriginalColumnCount,
     int OutputColumnCount,
-    int AnonymizedAccountColumns,
-    int AnonymizedArnColumns,
-    int HashedTagColumns,
+    int AnonymizedColumns,
     long InputRowCount,
     long OutputRowCount
 );
@@ -199,20 +197,8 @@ public static class CurPipeline
         // Get normalized columns
         var normalizedColumns = await GetColumnsAsync(cmd, "cur_normalized");
 
-        // Check which account ID columns exist
-        var accountColumns = normalizedColumns
-            .Where(col => col.Contains("account_id", StringComparison.OrdinalIgnoreCase))
-            .ToList();
-
-        // Check for ARN columns
-        var arnColumns = normalizedColumns
-            .Where(col => col.Contains("resource_id", StringComparison.OrdinalIgnoreCase) || col.Contains("_arn", StringComparison.OrdinalIgnoreCase))
-            .ToList();
-
-        // Check for tag columns
-        var tagColumns = normalizedColumns
-            .Where(col => col.Contains("_tags", StringComparison.OrdinalIgnoreCase) || col == "resource_tags")
-            .ToList();
+        // Get anonymization patterns from config
+        var anonymizationPatterns = config.Anonymization?.AnonymizationPatterns ?? new List<string>();
 
         // Count input rows from normalized view (before filtering)
         cmd.CommandText = "SELECT COUNT(*) FROM cur_normalized;";
@@ -225,30 +211,20 @@ public static class CurPipeline
 
         var processedColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var selectColumns = new List<string>();
-        var anonymizedAccountCols = 0;
-        var anonymizedArnCols = 0;
-        var hashedTagCols = 0;
+        var anonymizedCols = 0;
 
         foreach (var col in normalizedColumns)
         {
-            // Apply smart defaults based on anonymization settings
-            if (accountColumns.Contains(col) && config.Anonymization?.AnonymizeAccountIds == true)
+            // Check if column matches any anonymization pattern
+            bool shouldAnonymize = anonymizationPatterns.Any(pattern =>
+                ConfigLoader.MatchesGlobPattern(col, pattern));
+
+            if (shouldAnonymize)
             {
-                selectColumns.Add($"  lpad(CAST(abs(hash('{Q(salt)}' || {col})) % 100000000000 AS VARCHAR), 12, '0') AS {col}");
+                // Use MD5 hash for anonymization
+                selectColumns.Add($"  substr(md5('{Q(salt)}' || CAST({col} AS VARCHAR)), 1, 16) AS {col}");
                 processedColumns.Add(col);
-                anonymizedAccountCols++;
-            }
-            else if (arnColumns.Contains(col) && config.Anonymization?.AnonymizeArns == true)
-            {
-                selectColumns.Add($"  {GetArnAnonymizationSql(col, salt)} AS {col}");
-                processedColumns.Add(col);
-                anonymizedArnCols++;
-            }
-            else if (tagColumns.Contains(col) && config.Anonymization?.HashTags == true)
-            {
-                selectColumns.Add($"  md5(CAST({col} AS VARCHAR)) AS {col}");
-                processedColumns.Add(col);
-                hashedTagCols++;
+                anonymizedCols++;
             }
             else
             {
@@ -313,9 +289,7 @@ public static class CurPipeline
         return new CurProcessingStats(
             OriginalColumnCount: originalColumnCount,
             OutputColumnCount: selectColumns.Count,
-            AnonymizedAccountColumns: anonymizedAccountCols,
-            AnonymizedArnColumns: anonymizedArnCols,
-            HashedTagColumns: hashedTagCols,
+            AnonymizedColumns: anonymizedCols,
             InputRowCount: inputRowCount,
             OutputRowCount: outputRowCount
         );

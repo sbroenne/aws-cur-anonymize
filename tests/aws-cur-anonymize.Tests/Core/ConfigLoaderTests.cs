@@ -20,9 +20,9 @@ public class ConfigLoaderTests
         Assert.True(config.IncludePatterns == null || config.IncludePatterns.Count == 0);
         Assert.True(config.ExcludePatterns == null || config.ExcludePatterns.Count == 0);
         Assert.NotNull(config.Anonymization);
-        Assert.True(config.Anonymization!.AnonymizeAccountIds);
-        Assert.True(config.Anonymization.AnonymizeArns);
-        Assert.True(config.Anonymization.HashTags);
+        Assert.NotNull(config.Anonymization!.AnonymizationPatterns);
+        Assert.Contains("payer_account_id", config.Anonymization.AnonymizationPatterns);
+        Assert.Contains("linked_account_id", config.Anonymization.AnonymizationPatterns);
     }
 
     [Fact]
@@ -190,8 +190,9 @@ public class ConfigLoaderTests
         Assert.NotNull(config);
         Assert.NotNull(config.ExcludePatterns);
         Assert.NotNull(config.Anonymization);
-        Assert.True(config.Anonymization.AnonymizeAccountIds);
-        Assert.True(config.Anonymization.AnonymizeArns);
+        Assert.NotNull(config.Anonymization.AnonymizationPatterns);
+        Assert.Contains("payer_account_id", config.Anonymization.AnonymizationPatterns);
+        Assert.Contains("payer_account_name", config.Anonymization.AnonymizationPatterns);
     }
 
     private static string FindProjectRoot()

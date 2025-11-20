@@ -98,9 +98,12 @@ public class CurPipelineTests : IDisposable
             },
             Anonymization = new AnonymizationSettings
             {
-                AnonymizeAccountIds = true,
-                AnonymizeArns = false,
-                HashTags = false
+                AnonymizationPatterns = new List<string>
+                {
+                    "payer_account_id",
+                    "linked_account_id",
+                    "*_account_id"
+                }
             }
         };
         await ConfigLoader.SaveConfigAsync(configPath, config);
