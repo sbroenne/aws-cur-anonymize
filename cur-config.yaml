@@ -7,9 +7,9 @@
 
 # Column Exclusion: Remove only these columns from output (keep everything else)
 exclude_patterns:
+
   - identity_*                        # Identity: Remove AWS internal identity tracking columns
   - bill_*                            # Billing: Remove invoice-specific billing details
-  - invoice_i_d                       # Invoice ID: Remove invoice identifier
   - payer_account_id                  # Account ID: Remove payer account
   - payer_account_name                # Account name: Remove payer account name
   - linked_account_id                 # Account ID: Remove linked account
@@ -27,6 +27,13 @@ exclude_patterns:
   - line_item_blended_rate            # Cost: Remove blended rates (customer-specific)
   - line_item_net_unblended_cost      # Cost: Remove after-discount costs (customer-specific)
   - line_item_net_unblended_rate      # Cost: Remove after-discount rates (customer-specific)
+  - credits                           # Invoice Credits: Remove credit-specific details
+  - invoice_i_d                       # Invoice ID: Remove invoice identifier
+  - taxation_address                  # Invoice: Remove customer taxation address
+  - tax_type                          # Inovice: Remove tax type information
+  - tax_amount                        # Inovice: Remove tax amount (customer-specific)
+  - cost_before_tax                   # Inovice: Remove pre-tax costs (customer-specific pricing)
+  - total_cost                        # Inovice: Cost: Remove final invoice amounts (customer-specific)
 
 # Anonymization: Hash sensitive data columns that remain in output (after exclusions applied)
 # Business rule: These columns MUST be anonymized if they appear in the output
@@ -38,7 +45,7 @@ anonymization:
     - linked_account_name             # Must anonymize if not excluded
     - "*_account_id"                  # Must anonymize all account IDs if not excluded
     - "*_account_name"                # Must anonymize all account names if not excluded
-    - "*_resource_id"                 # Must anonymize ARNs if not excluded
+    - "*_resource_id"                 # Must anonymize resources if not excluded
     - "*_arn"                         # Must anonymize ARNs if not excluded
 
 # Row Filtering: Keep only actual resource usage rows
