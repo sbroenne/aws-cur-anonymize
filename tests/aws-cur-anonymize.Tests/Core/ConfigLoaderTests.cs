@@ -48,9 +48,11 @@ public class ConfigLoaderTests
             // Assert
             Assert.NotNull(config);
             Assert.Equal("Test config", config.Comment);
+            Assert.NotNull(config.IncludePatterns);
             Assert.Equal(2, config.IncludePatterns.Count);
             Assert.Contains("line_item_*", config.IncludePatterns);
             Assert.Contains("bill_*", config.IncludePatterns);
+            Assert.NotNull(config.ExcludePatterns);
             Assert.Equal(2, config.ExcludePatterns.Count);
             Assert.Contains("identity_*", config.ExcludePatterns);
             Assert.Contains("*_internal", config.ExcludePatterns);
