@@ -3,7 +3,7 @@
   <!-- See: https://learn.microsoft.com/nuget/consume-packages/central-package-management -->
   <ItemGroup>
     <!-- Application Dependencies -->
-    <PackageVersion Include="DuckDB.NET.Data.Full" Version="1.5.2" />
+    <PackageVersion Include="DuckDB.NET.Data.Full" Version="1.5.3" />
     <PackageVersion Include="Spectre.Console" Version="0.55.2" />
     <PackageVersion Include="Spectre.Console.Cli" Version="0.55.0" />
     <PackageVersion Include="YamlDotNet" Version="18.0.0" />
