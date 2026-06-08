@@ -4,7 +4,7 @@
   <ItemGroup>
     <!-- Application Dependencies -->
     <PackageVersion Include="DuckDB.NET.Data.Full" Version="1.5.3" />
-    <PackageVersion Include="Spectre.Console" Version="0.55.2" />
+    <PackageVersion Include="Spectre.Console" Version="0.56.0" />
     <PackageVersion Include="Spectre.Console.Cli" Version="0.55.0" />
     <PackageVersion Include="YamlDotNet" Version="18.0.0" />
     <!-- Test Dependencies -->
